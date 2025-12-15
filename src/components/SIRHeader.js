@@ -18,21 +18,33 @@ const SIRHeader = () => {
         >
           <AlertTriangle className="w-12 h-12 text-white" />
         </motion.div>
-        <motion.h1 
-          className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-red-600 via-orange-600 to-yellow-500 bg-clip-text text-transparent mb-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
-        >
-          Modelo SIR
-        </motion.h1>
+          <motion.div
+            className="mb-3"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.15, duration: 0.6 }}
+          >
+            <div className="inline-block bg-white px-6 py-2 rounded-full shadow-md">
+              <span className="text-2xl font-bold text-blue-700">SEDES</span>
+              <span className="text-sm text-gray-600 ml-2">Bolivia</span>
+            </div>
+          </motion.div>
+          
+          <motion.h1 
+            className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-700 via-blue-600 to-cyan-500 bg-clip-text text-transparent mb-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+          >
+            Sistema de Modelado Epidemiológico
+          </motion.h1>
         <motion.p 
           className="text-xl md:text-2xl text-gray-700 max-w-3xl mx-auto mb-8 font-medium"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.6 }}
         >
-          Entiende cómo se propagan las epidemias: de sanos a infectados y recuperados, todo con un toque matemático simple para tu clase de ecuaciones diferenciales.
+          Servicio Departamental de Salud - Análisis matemático para toma de decisiones en salud pública
         </motion.p>
         <div className="flex flex-wrap justify-center items-center gap-8 text-lg font-semibold">
           <motion.div 

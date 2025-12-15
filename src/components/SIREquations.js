@@ -1,107 +1,206 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { TrendingUp, TrendingDown, Shuffle, Calculator } from 'lucide-react';
+import { motion } from "framer-motion";
+import { BlockMath, InlineMath } from "react-katex";
+import { AlertTriangle, Activity, TrendingUp } from 'lucide-react';
 
-const SIREquations = () => {
-  const equations = [
-    {
-      title: "Cambio en Sanos (dS/dt)",
-      description: "Los sanos se van cuando chocan con infectados; el virus los roba a una velocidad que depende de cuánto se mezclan, como un ladrón en una fiesta llena.",
-      icon: TrendingDown,
-      color: "from-green-400 to-red-500",
-      step: "Tasa de pérdida = -β × (sanos / total) × infectados"
-    },
-    {
-      title: "Cambio en Infectados (dI/dt)",
-      description: "Ganan de los sanos que se contagian, pero pierden a los que se recuperan; aquí nace el pico, cuando los nuevos igualan a los que se van, como una ola que crece y cae.",
-      icon: TrendingUp,
-      color: "from-red-400 to-yellow-500",
-      step: "Tasa neta = β × (sanos / total) × infectados - γ × infectados"
-    },
-    {
-      title: "Cambio en Recuperados (dR/dt)",
-      description: "Solo ganan de los infectados que salen adelante; acumulan como un contador de sobrevivientes, terminando cuando el virus se agota o todos están a salvo.",
-      icon: Shuffle,
-      color: "from-blue-400 to-purple-500",
-      step: "Tasa de ganancia = γ × infectados"
-    }
-  ];
-
+export default function SIREquations() {
   return (
-    <motion.section 
-      className="py-16 px-4 bg-gradient-to-br from-indigo-50 to-purple-50"
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8 }}
-    >
-      <div className="max-w-6xl mx-auto">
-        <motion.h2 
-          className="text-4xl font-bold text-center text-gray-800 mb-12 flex items-center justify-center gap-3"
-          initial={{ scale: 0.9 }}
-          whileInView={{ scale: 1 }}
-          transition={{ duration: 0.6 }}
-        >
-          <Calculator className="w-10 h-10 text-indigo-600" />
-          Ecuaciones Diferenciales del SIR Explicadas
-        </motion.h2>
-        <motion.p 
-          className="text-center text-xl text-gray-700 mb-12 max-w-4xl mx-auto"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-        >
-          Estas ecuaciones miden cómo cambian los grupos en tiempo real, sumando pedacitos infinitesimales (lo que estudias en clase) para predecir epidemias. β es contagio, γ recuperación: ¡ajusta y ve la magia diferencial!
-        </motion.p>
-        <div className="grid md:grid-cols-3 gap-8">
-          {equations.map((eq, index) => {
-            const Icon = eq.icon;
-            return (
-              <motion.div
-                key={eq.title}
-                className="bg-white rounded-3xl p-8 shadow-xl border border-gray-200 hover:shadow-2xl transition-all duration-300"
-                initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                whileHover={{ y: -10 }}
-              >
-                <motion.div
-                  className={`p-4 rounded-2xl mx-auto w-16 h-16 bg-gradient-to-br ${eq.color} mb-6 flex items-center justify-center`}
-                  whileHover={{ rotate: 360 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <Icon className="w-8 h-8 text-white" />
-                </motion.div>
-                <h3 className="text-2xl font-bold text-gray-800 mb-4 text-center">{eq.title}</h3>
-                <p className="text-gray-600 leading-relaxed mb-4">{eq.description}</p>
-                <div className="bg-gradient-to-r from-gray-100 to-gray-200 rounded-2xl p-4 text-center">
-                  <span className="font-mono text-lg text-gray-800 block">{eq.step}</span>
-                  <small className="text-gray-500 block mt-1">(Donde dt es un tiempito pequeñito)</small>
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-        <motion.div 
-          className="mt-12 text-center"
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
-        >
-          <p className="text-lg text-gray-700 mb-4">
-            En clase, resuelve estas ODEs numéricamente (como Euler o Runge-Kutta) para ver por qué el SIR predice picos y fin de epidemias. ¡Tu simulación arriba lo hace por ti!
-          </p>
-          <motion.button 
-            className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl font-bold shadow-lg hover:shadow-xl"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => document.querySelector('#graph-section')?.scrollIntoView({ behavior: 'smooth' })}
-          >
-            ¡Simula con Ecuaciones!
-          </motion.button>
-        </motion.div>
-      </div>
-    </motion.section>
-  );
-};
+    <div className="max-w-7xl mx-auto py-16 px-4 bg-gradient-to-b from-white to-gray-50">
+      <motion.div
+        className="text-center mb-12"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+          Fundamentos Matemáticos y Epidemiológicos
+        </h1>
+        <p className="text-xl text-gray-700 mb-2">Sistema de Modelado Predictivo - SEDES Bolivia</p>
+        <p className="text-sm text-gray-500 italic">Basado en teoría de ecuaciones diferenciales y dinámica de poblaciones</p>
+      </motion.div>
 
-export default SIREquations;
+      {/* SECCIÓN 1: MODELO SIR */}
+      <Section
+        title="Modelo SIR Clásico"
+        content={
+          <div className="space-y-6">
+            <p className="text-lg leading-relaxed">
+              El modelo SIR es un sistema de ecuaciones diferenciales ordinarias (EDO) que describe la dinámica de transmisión de enfermedades infecciosas. Divide la población <InlineMath math="N" /> en tres compartimentos:
+            </p>
+            <div className="grid md:grid-cols-3 gap-4 my-6">
+              <div className="bg-green-50 p-4 rounded-lg border-2 border-green-300">
+                <h4 className="font-bold text-green-700 mb-2">S - Susceptibles</h4>
+                <p className="text-sm">Personas que pueden contraer la enfermedad</p>
+              </div>
+              <div className="bg-red-50 p-4 rounded-lg border-2 border-red-300">
+                <h4 className="font-bold text-red-700 mb-2">I - Infectados</h4>
+                <p className="text-sm">Personas actualmente enfermas y contagiosas</p>
+              </div>
+              <div className="bg-blue-50 p-4 rounded-lg border-2 border-blue-300">
+                <h4 className="font-bold text-blue-700 mb-2">R - Recuperados</h4>
+                <p className="text-sm">Personas inmunes (recuperadas o vacunadas)</p>
+              </div>
+            </div>
+            
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl border border-blue-200">
+              <h4 className="font-semibold text-lg mb-4 text-center">Sistema de Ecuaciones Diferenciales</h4>
+              <div className="overflow-x-auto">
+                <BlockMath>{String.raw`\begin{aligned} \frac{dS}{dt} &= -\beta \frac{SI}{N} \\ \frac{dI}{dt} &= \beta \frac{SI}{N} - \gamma I \\ \frac{dR}{dt} &= \gamma I \end{aligned}`}</BlockMath>
+              </div>
+              <p className="text-sm text-gray-600 mt-4">Con la condición de conservación: <InlineMath>{String.raw`S(t) + I(t) + R(t) = N`}</InlineMath></p>
+            </div>
+
+            <div className="bg-gray-50 p-5 rounded-lg">
+              <h4 className="font-semibold mb-3">Parámetros Epidemiológicos:</h4>
+              <ul className="space-y-2">
+                <li><InlineMath>{String.raw`\beta`}</InlineMath> : Tasa de transmisión (contactos efectivos × probabilidad de contagio por día)</li>
+                <li><InlineMath>{String.raw`\gamma`}</InlineMath> : Tasa de recuperación (inverso del período infeccioso, <InlineMath>{String.raw`\gamma = 1/D`}</InlineMath>)</li>
+                <li><InlineMath>N</InlineMath> : Población total (constante en modelo básico)</li>
+                <li><InlineMath>{String.raw`R_0 = \frac{\beta}{\gamma}`}</InlineMath> : Número básico de reproducción (personas contagiadas por cada infectado)</li>
+              </ul>
+            </div>
+          </div>
+        }
+      />
+
+      {/* SECCIÓN 2: MODELO SEIR */}
+      <Section
+        title="Modelo SEIR Extendido"
+        content={
+          <div className="space-y-6">
+            <p className="text-lg leading-relaxed">
+              El modelo SEIR añade el compartimento de <strong>Expuestos (E)</strong>, representando el período de incubación donde las personas están infectadas pero aún no son contagiosas.
+            </p>
+            
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-200">
+              <h4 className="font-semibold text-lg mb-4 text-center">Sistema SEIR</h4>
+              <div className="overflow-x-auto">
+                <BlockMath>{String.raw`\begin{aligned} \frac{dS}{dt} &= -\beta \frac{SI}{N} \\ \frac{dE}{dt} &= \beta \frac{SI}{N} - \sigma E \\ \frac{dI}{dt} &= \sigma E - \gamma I \\ \frac{dR}{dt} &= \gamma I \end{aligned}`}</BlockMath>
+              </div>
+            </div>
+
+            <div className="bg-gray-50 p-5 rounded-lg">
+              <h4 className="font-semibold mb-3">Parámetro Adicional:</h4>
+              <ul className="space-y-2">
+                <li><InlineMath>{String.raw`\sigma`}</InlineMath> : Tasa de progresión de expuesto a infeccioso (<InlineMath>{String.raw`\sigma = 1/T_E`}</InlineMath>, donde <InlineMath>{String.raw`T_E`}</InlineMath> es el período de incubación)</li>
+              </ul>
+            </div>
+          </div>
+        }
+      />
+
+      {/* SECCIÓN 3: NÚMERO REPRODUCTIVO BÁSICO */}
+      <Section
+        title="Número Reproductivo Básico (R₀)"
+        content={
+          <div className="space-y-6">
+            <p className="text-lg leading-relaxed">
+              El <InlineMath>{String.raw`R_0`}</InlineMath> es el parámetro más importante en epidemiología. Representa el número promedio de personas que un individuo infectado contagiará en una población completamente susceptible.
+            </p>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="bg-green-50 p-5 rounded-lg border-2 border-green-400">
+                <h4 className="font-bold text-green-700 mb-2 text-center"><InlineMath>{String.raw`R_0 < 1`}</InlineMath></h4>
+                <p className="text-center">La enfermedad se extingue</p>
+                <p className="text-sm text-gray-600 mt-2">Cada infectado contagia a menos de una persona → Decrecimiento exponencial</p>
+              </div>
+              <div className="bg-red-50 p-5 rounded-lg border-2 border-red-400">
+                <h4 className="font-bold text-red-700 mb-2 text-center"><InlineMath>{String.raw`R_0 > 1`}</InlineMath></h4>
+                <p className="text-center">Ocurre una epidemia</p>
+                <p className="text-sm text-gray-600 mt-2">Cada infectado contagia a más de una persona → Crecimiento exponencial</p>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 p-5 rounded-lg border border-blue-300">
+              <h4 className="font-semibold mb-3">Para el modelo SIR:</h4>
+              <BlockMath>{String.raw`R_0 = \frac{\beta}{\gamma}`}</BlockMath>
+              <p className="text-sm text-gray-600 mt-3">Ejemplos de enfermedades reales:</p>
+              <ul className="text-sm space-y-1 mt-2">
+                <li>• Sarampión: R₀ ≈ 12-18</li>
+                <li>• COVID-19 (original): R₀ ≈ 2.5-4</li>
+                <li>• Gripe estacional: R₀ ≈ 1.3</li>
+                <li>• Dengue: R₀ ≈ 2-4 (varía por región)</li>
+              </ul>
+            </div>
+          </div>
+        }
+      />
+
+      {/* SECCIÓN 4: MÉTODO NUMÉRICO */}
+      <Section
+        title="Método Numérico: Runge-Kutta 4 (RK4)"
+        content={
+          <div className="space-y-6">
+            <p className="text-lg leading-relaxed">
+              Las ecuaciones diferenciales del modelo SIR/SEIR no tienen solución analítica cerrada. Utilizamos el método de <strong>Runge-Kutta de orden 4</strong>, uno de los métodos numéricos más precisos y estables.
+            </p>
+
+            <div className="bg-gradient-to-r from-indigo-50 to-blue-50 p-6 rounded-xl border border-indigo-200">
+              <h4 className="font-semibold text-lg mb-4 text-center">Algoritmo RK4</h4>
+              <div className="overflow-x-auto">
+                <BlockMath>{String.raw`\begin{aligned} k_1 &= f(t_n, y_n) \\ k_2 &= f(t_n + \frac{h}{2}, y_n + \frac{h}{2}k_1) \\ k_3 &= f(t_n + \frac{h}{2}, y_n + \frac{h}{2}k_2) \\ k_4 &= f(t_n + h, y_n + hk_3) \\ y_{n+1} &= y_n + \frac{h}{6}(k_1 + 2k_2 + 2k_3 + k_4) \end{aligned}`}</BlockMath>
+              </div>
+              <p className="text-sm text-center text-gray-600 mt-4">Donde <InlineMath>h</InlineMath> es el tamaño del paso temporal</p>
+            </div>
+
+            <div className="bg-yellow-50 p-5 rounded-lg border border-yellow-300">
+              <h4 className="font-semibold mb-2">Consideraciones Numéricas:</h4>
+              <ul className="text-sm space-y-2">
+                <li>• <strong>Precisión</strong>: Error del orden O(h⁵) por paso</li>
+                <li>• <strong>Estabilidad</strong>: Requiere h suficientemente pequeño</li>
+                <li>• <strong>Conservación</strong>: Verificar que S+E+I+R ≈ N en cada paso</li>
+              </ul>
+            </div>
+          </div>
+        }
+      />
+
+      {/* SECCIÓN 5: ANÁLISIS DEL PICO EPIDÉMICO */}
+      <Section
+        title="Análisis del Pico Epidémico"
+        content={
+          <div className="space-y-6">
+            <p className="text-lg leading-relaxed">
+              El pico de la epidemia ocurre cuando <InlineMath>{String.raw`\frac{dI}{dt} = 0`}</InlineMath>, es decir, cuando la tasa de nuevos contagios iguala la tasa de recuperación.
+            </p>
+
+            <div className="bg-gradient-to-r from-red-50 to-orange-50 p-6 rounded-xl border border-red-200">
+              <h4 className="font-semibold text-lg mb-4 text-center">Condición de Pico</h4>
+              <div className="overflow-x-auto">
+                <BlockMath>{String.raw`\frac{dI}{dt} = 0 \Rightarrow \beta \frac{SI}{N} = \gamma I \Rightarrow S_{\text{pico}} = \frac{N}{R_0}`}</BlockMath>
+              </div>
+            </div>
+
+            <div className="bg-gray-50 p-5 rounded-lg">
+              <h4 className="font-semibold mb-3">Métricas Epidemiológicas Clave:</h4>
+              <ul className="space-y-2 text-sm">
+                <li>• <strong>Tiempo al pico</strong>: Tiempo hasta máximo de infectados</li>
+                <li>• <strong>Tamaño del pico</strong>: Máximo de I(t)</li>
+                <li>• <strong>Ataque final</strong>: Proporción de población que se infecta: <InlineMath>{String.raw`R(\infty)/N`}</InlineMath></li>
+                <li>• <strong>Umbral de inmunidad colectiva</strong>: <InlineMath>{String.raw`1 - 1/R_0`}</InlineMath></li>
+              </ul>
+            </div>
+          </div>
+        }
+      />
+    </div>
+  );
+}
+
+function Section({ title, content }) {
+  return (
+    <motion.div
+      className="mb-6"
+      initial={{ opacity: 0, y: 10 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      viewport={{ once: true }}
+    >
+      <div className="bg-white rounded-xl shadow-lg border border-gray-200">
+        <div className="p-6">
+          <h2 className="text-xl font-semibold mb-3">{title}</h2>
+          <div className="text-gray-700 leading-relaxed">{content}</div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}

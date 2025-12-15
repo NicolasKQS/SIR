@@ -21,7 +21,7 @@ const SIRControls = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">¡Juega con la Epidemia!</h3>
+      <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">Parámetros de Simulación</h3>
       <div className="space-y-6">
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">Velocidad de Contagio (β)</label>
@@ -83,7 +83,7 @@ const SIRControls = ({
             whileTap={{ scale: 0.95 }}
           >
             <Play className="w-5 h-5" />
-            ¡Simular!
+            Simular
           </motion.button>
           <motion.button
             onClick={onReset}

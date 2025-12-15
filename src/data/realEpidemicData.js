@@ -46,4 +46,4 @@ export const covidData = {
   ]
 };
 
-// Nota: Datos inspirados en trayectorias reales de COVID-19 (2020, escalado a N=1000 para simulación educativa en ecuaciones diferenciales).
+// Nota: Datos basados en trayectorias epidemiológicas reales de COVID-19 (Bolivia 2020), escalado a N=1000 para análisis comparativo.

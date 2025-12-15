@@ -38,7 +38,7 @@ const SIRExplanation = () => {
           whileInView={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          ¿Cómo funciona el SIR?
+          ¿Cómo funciona el SIR?     
         </motion.h2>
         <div className="grid md:grid-cols-3 gap-8">
           {steps.map((step, index) => {
@@ -79,7 +79,7 @@ const SIRExplanation = () => {
           whileInView={{ opacity: 1 }}
           transition={{ delay: 0.5, duration: 0.5 }}
         >
-          El modelo usa ideas de cambio para predecir cómo fluye la gente entre estos grupos durante una epidemia grande, como un virus que arrasa con todo. Perfecto para impresionar en clase sin sudar.
+          El modelo utiliza ecuaciones diferenciales para predecir el flujo de población entre compartimentos epidemiológicos durante brotes de enfermedades infecciosas, permitiendo proyecciones y análisis de escenarios de intervención.
         </motion.p>
       </div>
     </motion.section>

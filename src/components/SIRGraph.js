@@ -13,6 +13,7 @@ import {
 } from 'chart.js';
 import SIRControls from './SIRControls';
 import { covidData } from '../data/realEpidemicData';
+import { Activity, TrendingUp, Users, AlertCircle } from 'lucide-react';
 
 ChartJS.register(
   CategoryScale,
@@ -31,30 +32,83 @@ const SIRGraph = () => {
   const [initialI, setInitialI] = useState(10);
   const [simulatedData, setSimulatedData] = useState(null);
   const [showRealData, setShowRealData] = useState(false);
+  const [metrics, setMetrics] = useState(null);
 
   const N = initialS + initialI;
 
   const simulateSIR = () => {
-    const dt = 0.1;
-    const steps = 200;
+    const dt = 0.2;
+    const steps = 400;
     const S = new Array(steps).fill(0);
     const I = new Array(steps).fill(0);
     const R = new Array(steps).fill(0);
+    const time = new Array(steps).fill(0);
+    
     S[0] = initialS;
     I[0] = initialI;
     R[0] = 0;
+    time[0] = 0;
 
+    // Método RK4 mejorado
     for (let t = 1; t < steps; t++) {
-      const dS = -beta * S[t - 1] * I[t - 1] / N * dt;
-      const dI = (beta * S[t - 1] * I[t - 1] / N - gamma * I[t - 1]) * dt;
-      const dR = gamma * I[t - 1] * dt;
+      const St = S[t - 1];
+      const It = I[t - 1];
+      const Rt = R[t - 1];
 
-      S[t] = Math.max(0, S[t - 1] + dS);
-      I[t] = Math.max(0, I[t - 1] + dI);
-      R[t] = Math.min(N, R[t - 1] + dR);
+      // k1
+      const k1_S = -beta * St * It / N;
+      const k1_I = beta * St * It / N - gamma * It;
+      const k1_R = gamma * It;
+
+      // k2
+      const S2 = St + dt * k1_S / 2;
+      const I2 = It + dt * k1_I / 2;
+      const k2_S = -beta * S2 * I2 / N;
+      const k2_I = beta * S2 * I2 / N - gamma * I2;
+      const k2_R = gamma * I2;
+
+      // k3
+      const S3 = St + dt * k2_S / 2;
+      const I3 = It + dt * k2_I / 2;
+      const k3_S = -beta * S3 * I3 / N;
+      const k3_I = beta * S3 * I3 / N - gamma * I3;
+      const k3_R = gamma * I3;
+
+      // k4
+      const S4 = St + dt * k3_S;
+      const I4 = It + dt * k3_I;
+      const k4_S = -beta * S4 * I4 / N;
+      const k4_I = beta * S4 * I4 / N - gamma * I4;
+      const k4_R = gamma * I4;
+
+      // Actualización
+      S[t] = Math.max(0, St + dt * (k1_S + 2*k2_S + 2*k3_S + k4_S) / 6);
+      I[t] = Math.max(0, It + dt * (k1_I + 2*k2_I + 2*k3_I + k4_I) / 6);
+      R[t] = Math.min(N, Rt + dt * (k1_R + 2*k2_R + 2*k3_R + k4_R) / 6);
+      time[t] = t * dt;
     }
 
-    setSimulatedData({ S, I, R, steps });
+    // Calcular métricas epidemiológicas
+    let peakInfected = Math.max(...I);
+    let peakDay = I.indexOf(peakInfected) * dt;
+    let finalAttackRate = (R[steps - 1] / N * 100).toFixed(2);
+    let R0 = (beta / gamma).toFixed(2);
+    let herdImmunity = ((1 - 1/(beta/gamma)) * 100).toFixed(1);
+    
+    // Día cuando I < 1
+    let extinctionDay = time.find((t, idx) => I[idx] < 1) || time[steps-1];
+
+    setMetrics({
+      R0,
+      peakInfected: Math.round(peakInfected),
+      peakDay: peakDay.toFixed(1),
+      finalAttackRate,
+      herdImmunity,
+      extinctionDay: extinctionDay.toFixed(1),
+      avgInfectionDays: (1/gamma).toFixed(1),
+    });
+
+    setSimulatedData({ S, I, R, steps, time });
   };
 
   const reset = () => {
@@ -64,6 +118,7 @@ const SIRGraph = () => {
     setInitialI(10);
     setSimulatedData(null);
     setShowRealData(false);
+    setMetrics(null);
   };
 
   const data = useMemo(() => {
@@ -72,7 +127,10 @@ const SIRGraph = () => {
     let finalDatasets = [];
 
     if (simulatedData) {
-      simLabels = Array.from({ length: simulatedData.steps }, (_, i) => `Día ${Math.round(i * 0.1)}`);
+      simLabels = Array.from({ length: simulatedData.steps }, (_, i) => {
+        const day = Math.round(i * 0.2);
+        return day % 10 === 0 ? `Día ${day}` : '';
+      });
       simDatasets = [
         {
           label: 'Sanos (simulado)',
@@ -93,7 +151,7 @@ const SIRGraph = () => {
           pointRadius: 0,
         },
         {
-          label: 'Recuperados (simulado)',
+          label: 'Recuperados (simulado)', 
           data: simulatedData.R.map(val => Math.round(val)),
           borderColor: '#3B82F6',
           backgroundColor: 'rgba(59, 130, 246, 0.1)',
@@ -139,11 +197,12 @@ const SIRGraph = () => {
       },
       title: {
         display: true,
-        text: showRealData ? 'Comparación SIR: Tu Simulación vs. Datos Reales de COVID-19 (Escalados)' : 'Simulación Interactiva del Modelo SIR (Ecuaciones Diferenciales)',
+        text: showRealData ? 'Comparación: Modelo SIR vs Datos Reales COVID-19' : 'Simulación Modelo SIR - Método Runge-Kutta 4',
         font: {
-          size: 18,
+          size: 16,
           weight: 'bold',
         },
+        padding: 20,
       },
       tooltip: {
         backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -200,7 +259,7 @@ const SIRGraph = () => {
           whileInView={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          ¡Controla la Epidemia con Diferenciales!
+          Simulación Interactiva del Modelo SIR
         </motion.h2>
         <SIRControls
           beta={beta}
@@ -214,6 +273,45 @@ const SIRGraph = () => {
           onSimulate={simulateSIR}
           onReset={reset}
         />
+        {/* Panel de Métricas Epidemiológicas */}
+        {metrics && (
+          <motion.div 
+            className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <MetricCard 
+              icon={<TrendingUp className="w-6 h-6" />}
+              label="R₀ (Reproductivo Básico)"
+              value={metrics.R0}
+              description={parseFloat(metrics.R0) > 1 ? "Epidemia activa" : "Se extingue"}
+              color={parseFloat(metrics.R0) > 1 ? "red" : "green"}
+            />
+            <MetricCard 
+              icon={<Activity className="w-6 h-6" />}
+              label="Pico de Infectados"
+              value={metrics.peakInfected}
+              description={`Día ${metrics.peakDay}`}
+              color="orange"
+            />
+            <MetricCard 
+              icon={<Users className="w-6 h-6" />}
+              label="Tasa de Ataque Final"
+              value={`${metrics.finalAttackRate}%`}
+              description="Población infectada total"
+              color="blue"
+            />
+            <MetricCard 
+              icon={<AlertCircle className="w-6 h-6" />}
+              label="Inmunidad de Rebaño"
+              value={`${metrics.herdImmunity}%`}
+              description="Umbral para detener epidemia"
+              color="purple"
+            />
+          </motion.div>
+        )}
+
         <motion.div className="flex justify-center mb-4">
           <motion.button
             onClick={() => setShowRealData(!showRealData)}
@@ -225,7 +323,7 @@ const SIRGraph = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            {showRealData ? 'Ocultar COVID Real' : 'Mostrar Datos COVID Real'}
+            {showRealData ? 'Ocultar COVID Real' : 'Comparar con COVID-19'}
           </motion.button>
         </motion.div>
         <motion.div 
@@ -236,18 +334,54 @@ const SIRGraph = () => {
         >
           <Line data={data} options={options} />
         </motion.div>
-        <motion.p 
-          className="text-center mt-8 text-lg text-gray-700"
+        <motion.div 
+          className="mt-8 bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-200"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.5 }}
         >
-          {showRealData 
-            ? 'Datos reales escalados de COVID-19 (2020, inspirados en CDC), comparados con tu modelo SIR. Ajusta β y γ para que coincida: ¡aprende diferenciales en acción!'
-            : 'Simula cambios infinitesimales (ecuaciones diferenciales numéricas) presionando ¡Simular!. Observa el pico cuando dI/dt = 0.'}
-        </motion.p>
+          <h3 className="font-bold text-lg mb-2 text-gray-800">Interpretación Epidemiológica</h3>
+          <p className="text-gray-700 leading-relaxed">
+            {showRealData 
+              ? 'Los datos reales de COVID-19 muestran la complejidad de epidemias reales con múltiples olas, intervenciones no farmacéuticas y cambios de comportamiento. El modelo SIR básico captura la dinámica fundamental, pero modelos más sofisticados (SEIR, SEIRS) son necesarios para predicciones precisas.'
+              : metrics 
+              ? `Con R₀ = ${metrics.R0}, ${parseFloat(metrics.R0) > 1 ? `la enfermedad se propaga exponencialmente. Se requiere vacunar al menos ${metrics.herdImmunity}% de la población para alcanzar inmunidad de rebaño. El pico ocurre en el día ${metrics.peakDay} cuando dI/dt = 0, con ${metrics.peakInfected} infectados simultáneos.` : 'la enfermedad no puede sostener la transmisión y se extingue naturalmente sin necesidad de intervenciones.'}`
+              : 'Presiona "¡Simular!" para resolver el sistema de ecuaciones diferenciales usando el método Runge-Kutta de orden 4. Observa cómo los parámetros β (contagiosidad) y γ (recuperación) determinan la dinámica de la epidemia.'}
+          </p>
+          {metrics && (
+            <div className="mt-4 p-4 bg-white rounded-lg">
+              <p className="text-sm text-gray-600">
+                <strong>Parámetros actuales:</strong> β = {beta.toFixed(3)}, γ = {gamma.toFixed(3)}, 
+                Período infeccioso promedio = {metrics.avgInfectionDays} días, 
+                Extinción aproximada: día {metrics.extinctionDay}
+              </p>
+            </div>
+          )}
+        </motion.div>
       </div>
     </motion.section>
+  );
+};
+
+// Componente para tarjetas de métricas
+const MetricCard = ({ icon, label, value, description, color }) => {
+  const colorClasses = {
+    red: 'from-red-50 to-red-100 border-red-300 text-red-700',
+    green: 'from-green-50 to-green-100 border-green-300 text-green-700',
+    blue: 'from-blue-50 to-blue-100 border-blue-300 text-blue-700',
+    orange: 'from-orange-50 to-orange-100 border-orange-300 text-orange-700',
+    purple: 'from-purple-50 to-purple-100 border-purple-300 text-purple-700',
+  };
+
+  return (
+    <div className={`bg-gradient-to-br ${colorClasses[color]} p-4 rounded-xl border-2 shadow-sm`}>
+      <div className="flex items-center gap-2 mb-2">
+        {icon}
+        <h4 className="font-semibold text-sm">{label}</h4>
+      </div>
+      <p className="text-2xl font-bold mb-1">{value}</p>
+      <p className="text-xs opacity-80">{description}</p>
+    </div>
   );
 };
 
